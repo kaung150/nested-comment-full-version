@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React, {useState, useEffect} from 'react'
-import {getComments as getCommentsApi, createComment as createCommentApi, deleteComment as deleteCommentApi} from '../api';
+import {getComments as getCommentsApi, createComment as createCommentApi, deleteComment as deleteCommentApi, updateComment as updateCommentApi} from '../api';
 import Comment from './Comment';
 import CommentForm from './CommentForm';
 
@@ -18,6 +18,7 @@ const Comments = ({currentUserId}) => {
     console.log('addComment', text, parentId)
     createCommentApi(text, parentId).then(comment => {
       setBackendComments([comment, ...backendComments])
+      setActiveComment(null)
     })
   }
 
@@ -29,6 +30,20 @@ const Comments = ({currentUserId}) => {
         setBackendComments(updatedBackendComments);
       })
     }
+  }
+
+  const updateComment = (text, commentId) => {
+    updateCommentApi(text, commentId).then(() => {
+      const updatedBackendComments = backendComments.map(backendComment => {
+        if(backendComment.id === commentId){
+          return {...backendComment, body: text};
+        }
+        return backendComment
+      })
+
+      setBackendComments(updatedBackendComments)
+      setActiveComment(null)
+    })
   }
 
   useEffect(() => {
@@ -59,6 +74,8 @@ const Comments = ({currentUserId}) => {
            deleteComment={deleteComment}
            activeComment={activeComment}
            setActiveComment={setActiveComment}
+           addComment={addComment}
+           updateComment={updateComment}
            />
         ))}
       </div>
